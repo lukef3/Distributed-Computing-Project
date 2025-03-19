@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="MainForm">
+  <grid id="27dc6" binding="panel1" layout-manager="GridBagLayout">
+    <constraints>
+      <xy x="20" y="20" width="560" height="674"/>
+    </constraints>
+    <properties>
+      <background color="-14605015"/>
+      <minimumSize width="400" height="500"/>
+      <preferredSize width="400" height="500"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <component id="4f431" class="javax.swing.JTextField" binding="messageField">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+          <gridbag top="5" left="10" bottom="5" right="5" weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-11972521"/>
+          <caretColor color="-1446673"/>
+          <disabledTextColor color="-1446673"/>
+          <foreground color="-1446673"/>
+          <selectedTextColor color="-1446673"/>
+        </properties>
+      </component>
+      <component id="b57b9" class="javax.swing.JTextField" binding="downloadField">
+        <constraints>
+          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+          <gridbag top="5" left="10" bottom="5" right="5" weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-11972521"/>
+          <caretColor color="-1446673"/>
+          <disabledTextColor color="-1446673"/>
+          <foreground color="-1446673"/>
+          <selectedTextColor color="-1446673"/>
+        </properties>
+      </component>
+      <component id="27c95" class="javax.swing.JButton" binding="downloadMessageButton" default-binding="true">
+        <constraints>
+          <grid row="3" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="5" left="5" bottom="5" right="10" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-9669251"/>
+          <foreground color="-1446673"/>
+          <text value="Download Message"/>
+        </properties>
+      </component>
+      <component id="f2c0c" class="javax.swing.JButton" binding="uploadMessageButton" default-binding="true">
+        <constraints>
+          <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="5" left="5" bottom="5" right="10" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-9669251"/>
+          <foreground color="-1446673"/>
+          <text value="Upload Message"/>
+        </properties>
+      </component>
+      <grid id="e83db" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-14605015"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="ae575" class="javax.swing.JButton" binding="logOffButton" default-binding="true">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="5" left="5" bottom="10" right="5" weightx="0.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <background color="-9669251"/>
+              <foreground color="-1446673"/>
+              <text value="Log Off"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="3a42e" layout-manager="GridBagLayout">
+        <constraints>
+          <grid row="4" column="0" row-span="1" col-span="5" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="1.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <background color="-14605015"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="bdfd1" class="javax.swing.JButton" binding="downloadAllMessagesButton" default-binding="true">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="5" left="5" bottom="5" right="5" weightx="0.0" weighty="1.0"/>
+            </constraints>
+            <properties>
+              <background color="-9669251"/>
+              <borderPainted value="false"/>
+              <foreground color="-1446673"/>
+              <text value="Download All Messages"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <scrollpane id="64f80">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <gridbag top="10" left="10" bottom="10" right="10" weightx="1.0" weighty="1.0"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="711f0" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+            <constraints/>
+            <properties>
+              <background color="-11972521"/>
+              <caretColor color="-1446673"/>
+              <disabledTextColor color="-1446673"/>
+              <editable value="false"/>
+              <foreground color="-1446673"/>
+              <margin top="5" left="5" bottom="5" right="5"/>
+            </properties>
+          </component>
+        </children>
+      </scrollpane>
+      <component id="84ab7" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="20" left="0" bottom="20" right="0" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <foreground color="-1446673"/>
+          <text value="Secure, Concurrent, Client-Server SMP"/>
+        </properties>
+      </component>
+      <component id="f72bb" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag top="0" left="10" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <foreground color="-1446673"/>
+          <text value="ID:"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

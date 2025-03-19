@@ -1,5 +1,9 @@
 import java.net.*;
 import java.io.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 /**
  * This class is a module which provides the application logic
@@ -8,36 +12,53 @@ import java.io.*;
  */
 
 public class ClientHelper {
-
-   static final String endMessage = ".";
+   static String endMessage = ".";
    private MyStreamSocket mySocket;
    private InetAddress serverHost;
    private int serverPort;
 
-   ClientHelper(String hostName,
-                String portNum) throws SocketException,
-                     UnknownHostException, IOException {
-                                     
-  	   this.serverHost = InetAddress.getByName(hostName);
-  		this.serverPort = Integer.parseInt(portNum);
+   ClientHelper(String hostName, String portNum) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+      this.serverHost = InetAddress.getByName(hostName);
+      this.serverPort = Integer.parseInt(portNum);
       //Instantiates a stream-mode socket and wait for a connection.
-   	this.mySocket = new MyStreamSocket(this.serverHost,
-         this.serverPort); 
-/**/  System.out.println("Connection request made");
+   	  this.mySocket = new MyStreamSocket(this.serverHost, this.serverPort);
+      System.out.println("CLIENT Connection request made");
    } // end constructor
-	
-   public String getEcho( String message) throws SocketException,
-      IOException{     
-      String echo = "";    
-      mySocket.sendMessage( message);
-	   // now receive the echo
-      echo = mySocket.receiveMessage();
-      return echo;
-   } // end getEcho
 
-   public void done( ) throws SocketException,
-                              IOException{
-      mySocket.sendMessage(endMessage);
-      mySocket.close( );
+   private String sendAndReceive(String request) throws IOException {
+      System.out.println("CLIENT Request sent: " + request);
+      mySocket.sendMessage(request);
+      String response = mySocket.receiveMessage();
+      System.out.println("CLIENT Response received: " + response);
+      return response;
+   }
+
+   public String login(String username, String password) throws IOException {
+      String request = "100:" + username + "," + password;
+      return sendAndReceive(request);
+   }
+
+   public String logOff() throws IOException {
+      String request = "200:";
+      return sendAndReceive(request);
+   }
+
+   public String uploadMessage(String username, String message) throws IOException {
+      String request = "300:" + username + "," + message;
+      return sendAndReceive(request);
+   }
+
+   public String downloadMessage(String messageId) throws IOException {
+      String request = "400:" + messageId;
+      return sendAndReceive(request);
+   }
+
+   public String downloadAllMessages() throws IOException {
+      String request = "500:";
+      return sendAndReceive(request);
+   }
+
+   public void done() throws IOException{
+      mySocket.close();
    } // end done 
 } //end class
