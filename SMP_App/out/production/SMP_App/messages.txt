@@ -11,3 +11,7 @@
 11-23:47:08-admin-begin the sacrifice
 12-23:47:34-admin-sex
 13-21:06:58-admin-wagwan
+14-[12:52:47]-[admin] : hi
+15-[15:28:58]-[admin] : hello
+16-[15:30:57]-[admin] : asdaw
+17-[15:38:53]-[admin] : wagwang

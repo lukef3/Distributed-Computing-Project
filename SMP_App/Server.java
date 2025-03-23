@@ -1,4 +1,5 @@
 import javax.net.ssl.*;
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.security.KeyStore;
 
@@ -12,6 +13,10 @@ import java.security.KeyStore;
 
 public class Server {
    public static void main(String[] args) {
+
+      //Create server form
+      ServerForm serverForm = new ServerForm();
+
       int port = 12345;
       if (args.length == 1) {
          port = Integer.parseInt(args[0]);
@@ -38,17 +43,17 @@ public class Server {
          SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
          SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);
 
-         System.out.println("SERVER ssl server listening on port " + port);
+         serverForm.log("Server listening on port " + port);
 
          // Forever loop
          while (true) {
             // wait to accept a connection
-            System.out.println("SERVER Waiting for a connection.");
+            serverForm.log("Waiting for a connection.");
             MyStreamSocket socket = new MyStreamSocket(sslServerSocket.accept());
-            System.out.println("SERVER Connection accepted from " + socket.getInetAddress());
+            serverForm.log("Connection accepted from " + socket.getInetAddress());
 
             // Spawn a new thread for this client
-            Thread theThread = new Thread(new ServerThread(socket));
+            Thread theThread = new Thread(new ServerThread(socket, serverForm));
             theThread.start();
             // and then go on to the next client
          }

@@ -11,10 +11,12 @@ import java.util.List;
 
 class ServerThread implements Runnable {
     MyStreamSocket myDataSocket;
+    ServerForm serverForm;
     private boolean loggedIn = false;
 
-    ServerThread(MyStreamSocket myDataSocket) {
+    ServerThread(MyStreamSocket myDataSocket, ServerForm serverForm) {
         this.myDataSocket = myDataSocket;
+        this.serverForm = serverForm;
     }
 
     public void run() {
@@ -23,11 +25,11 @@ class ServerThread implements Runnable {
         try {
             while (!done) {
                 request = myDataSocket.receiveMessage();
-                System.out.println("SERVER Request received: " + request);
+                serverForm.log("Request received: " + request);
                 done = handleRequest(request);
             }
         } catch (Exception ex) {
-            System.out.println("SERVER Exception caught in thread: " + ex);
+            serverForm.log("Exception caught in thread: " + ex);
         } finally {
             try {
                 myDataSocket.close();
@@ -37,19 +39,26 @@ class ServerThread implements Runnable {
         }
     }
 
+    private void sendMessage(String message) {
+        try {
+            myDataSocket.sendMessage(message);
+            serverForm.log("Response sent: " + message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean handleRequest(String request) throws IOException {
         String[] requestElements = request.split(":", 2);
         String requestCode = requestElements[0];
         String[] requestParams = requestElements[1].split(",");
 
+        String message = "";
+
         switch (requestCode){
             case "100":
                 if (loggedIn) {
-                    myDataSocket.sendMessage("Already logged in");
-                    break;
-                }
-                if (requestParams.length < 2) {
-                    myDataSocket.sendMessage("Error: Login request missing parameters");
+                    sendMessage("Already logged in");
                     break;
                 }
                 String username = requestParams[0];
@@ -58,48 +67,43 @@ class ServerThread implements Runnable {
                 break;
             case "200":
                 if (!loggedIn) {
-                    myDataSocket.sendMessage("Error: Not logged in");
+                    sendMessage("Error: Not logged in");
                 }
                 else {
                     loggedIn = false;
-                    myDataSocket.sendMessage("201: Logout Successful");
+                    sendMessage("201: Logout Successful");
                     return true;
                 }
                 break;
             case "300":
                 if (!loggedIn) {
-                    myDataSocket.sendMessage("Error: Not logged in");
-                    break;
-                }
-                if (requestParams.length < 2) {
-                    myDataSocket.sendMessage("Error: Upload request missing parameters");
+                    sendMessage("Error: Not logged in");
                     break;
                 }
                 // Call upload method
                 boolean uploadSuccess = uploadMessage(requestParams[0], requestParams[1]);
                 if (uploadSuccess) {
-                    myDataSocket.sendMessage("301: Upload Successful");
+                    sendMessage("301: Upload Successful");
                 } else {
                     myDataSocket.sendMessage("Error: Unable to upload message");
                 }
                 break;
             case "400":
                 if (!loggedIn) {
-                    myDataSocket.sendMessage("Error: Not logged in");
+                    sendMessage("Error: Not logged in");
                     break;
                 }
-                String message = downloadMessage(Integer.parseInt(requestParams[0]));
-                myDataSocket.sendMessage("401:" + message);
+                sendMessage("401:" + downloadMessage(Integer.parseInt(requestParams[0])));
                 break;
             case "500":
                 if (!loggedIn) {
-                    myDataSocket.sendMessage("Error: Not logged in");
+                    sendMessage("Error: Not logged in");
                     break;
                 }
-                myDataSocket.sendMessage("501:" + downloadAllMessages());
+                sendMessage("501:" + downloadAllMessages());
                 break;
             default:
-                myDataSocket.sendMessage("Error: Unknown Request");
+                sendMessage("Error: Unknown Request");
                 break;
         }
         return false;
@@ -108,29 +112,29 @@ class ServerThread implements Runnable {
     private void verifyLogin(String username, String password) throws IOException {
         if ("admin".equals(username) && "password".equals(password)) {
             loggedIn = true;
-            myDataSocket.sendMessage("101: Login Successful. Welcome " + username + ".");
+            sendMessage("101: Login Successful. Welcome " + username + ".");
         } else {
             loggedIn = false;
-            myDataSocket.sendMessage("102: Login Failed");
+            sendMessage("102: Login Failed");
         }
     }
 
     private boolean uploadMessage(String username, String message) throws IOException {
         int id = getNextMessageId();
-        // Append the message to the file "messages.txt" in the format "username-message"
         String currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("../messages.txt", true))) {
-            bw.write(id + "-" + currentTime + "-" + username + "-" + message);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("messages.txt", true))) {
+            bw.write(id + "-[" + currentTime + "]-[" + username + "] : " + message);
             bw.newLine();
             return true;
         } catch (IOException ex) {
-            System.err.println("Error uploading message: " + ex.getMessage());
+            System.err.println("Error uploading message to messages file: " + ex.getMessage());
+            serverForm.log("Error uploading message to messages file: " + ex.getMessage());
             return false;
         }
     }
 
     private String downloadAllMessages() {
-        try (BufferedReader br = new BufferedReader(new FileReader("../messages.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("messages.txt"))) {
             List<String> lines = new ArrayList<>();
             String line;
             while ((line = br.readLine()) != null) {
@@ -143,7 +147,7 @@ class ServerThread implements Runnable {
     }
 
     private String downloadMessage(int messageId) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("../messages.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("messages.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("-");
@@ -160,7 +164,7 @@ class ServerThread implements Runnable {
 
     private int getNextMessageId() throws IOException {
         int highestId = 0;
-        File file = new File("../messages.txt");
+        File file = new File("messages.txt");
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {

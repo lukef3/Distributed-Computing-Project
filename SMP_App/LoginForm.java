@@ -1,10 +1,7 @@
 import javax.swing.*;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
 
 public class LoginForm {
     private JButton LOGINButton;
@@ -36,16 +33,10 @@ public class LoginForm {
                     // Send the login request and retrieve the server's response
                     String response = helper.login(username, password);
 
-                    // Prepare a message to display by stripping the response code.
-                    String message = response;
-                    if (response != null && response.contains(":")) {
-                        // Extract response message
-                        message = response.substring(response.indexOf(":") + 1).trim();
-                    }
                     // "101:" indicates a successful login, "102:" indicates a failure.
                     if (response != null && response.startsWith("101:")) {
-                        JOptionPane.showMessageDialog(panel1, message, "Login Successful", JOptionPane.INFORMATION_MESSAGE);
-                        JFrame mainFrame = new JFrame("Client");
+                        JOptionPane.showMessageDialog(panel1, response, "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+                        JFrame mainFrame = new JFrame("Client: " + username);
                         // Open Main form. Pass client helper to stay on same session.
                         mainFrame.setContentPane(new MainForm(username, helper).getPanel());
                         mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -57,12 +48,8 @@ public class LoginForm {
                         if (loginFrame != null) {
                             loginFrame.dispose();
                         }
-
-                    } else if (response != null && response.startsWith("102:")) {
-                        JOptionPane.showMessageDialog(panel1, message, "Login Failed", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        // Handle unexpected responses
-                        JOptionPane.showMessageDialog(panel1, "Unexpected response: " + message, "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(panel1, response, "Login Failed", JOptionPane.ERROR_MESSAGE);
                     }
 
                 } catch (Exception ex) {
@@ -107,7 +94,7 @@ public class LoginForm {
         GridBagConstraints gbc;
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -122,7 +109,7 @@ public class LoginForm {
         adminTextField.setToolTipText("Username");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -137,13 +124,21 @@ public class LoginForm {
         passwordPasswordField.setToolTipText("Password");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 20, 5, 20);
         panel1.add(passwordPasswordField, gbc);
+        final JLabel label1 = new JLabel();
+        label1.setForeground(new Color(-1446673));
+        label1.setText("Secure, Concurrent, Client-Server SMP");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(20, 0, 20, 0);
+        panel1.add(label1, gbc);
     }
 
     /**

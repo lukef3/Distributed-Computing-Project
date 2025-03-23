@@ -22,15 +22,11 @@ public class ClientHelper {
       this.serverPort = Integer.parseInt(portNum);
       //Instantiates a stream-mode socket and wait for a connection.
    	  this.mySocket = new MyStreamSocket(this.serverHost, this.serverPort);
-      System.out.println("CLIENT Connection request made");
    } // end constructor
 
    private String sendAndReceive(String request) throws IOException {
-      System.out.println("CLIENT Request sent: " + request);
       mySocket.sendMessage(request);
-      String response = mySocket.receiveMessage();
-      System.out.println("CLIENT Response received: " + response);
-      return response;
+       return mySocket.receiveMessage();
    }
 
    public String login(String username, String password) throws IOException {
