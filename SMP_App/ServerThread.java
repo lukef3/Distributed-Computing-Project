@@ -53,12 +53,10 @@ class ServerThread implements Runnable {
         String requestCode = requestElements[0];
         String[] requestParams = requestElements[1].split(",");
 
-        String message = "";
-
         switch (requestCode){
             case "100":
-                if (loggedIn) {
-                    sendMessage("Already logged in");
+                if (requestParams.length < 2) {
+                    sendMessage("103: Missing login parameters");
                     break;
                 }
                 String username = requestParams[0];

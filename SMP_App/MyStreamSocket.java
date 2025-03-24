@@ -20,7 +20,7 @@ public class MyStreamSocket extends Socket {
    private PrintWriter output;
 
    String tsName = "clientTrustStore.jks";
-   char[] tsPassword = "password".toCharArray( );
+   char[] tsPassword = "password".toCharArray();
 
    MyStreamSocket(InetAddress acceptorHost, int acceptorPort ) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, KeyManagementException {
       KeyStore trustStore = KeyStore.getInstance("JKS");

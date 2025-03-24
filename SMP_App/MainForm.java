@@ -34,12 +34,21 @@ public class MainForm {
                     JOptionPane.showMessageDialog(panel1, "Please enter a message to upload.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                if (message.contains("|")) {
+                    JOptionPane.showMessageDialog(panel1, "The message must not contain the '|' symbol.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 try {
                     String response = helper.uploadMessage(username, message);
-                    textArea1.append(response + "\n");
-                    messageField.setText("");
+                    if (response.startsWith("301:")) {
+                        textArea1.append(response + "\n");
+                        messageField.setText("");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(panel1, response, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(panel1, "Error uploading message: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
@@ -54,11 +63,20 @@ public class MainForm {
                     JOptionPane.showMessageDialog(panel1, "Please enter a message ID to download.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+                if (!id.matches("\\d+")) {
+                    JOptionPane.showMessageDialog(panel1, "Message ID must be a number.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 try {
                     String response = helper.downloadMessage(id);
-                    textArea1.append(response + "\n");
+                    if (response.startsWith("401:")) {
+                        textArea1.append(response + "\n");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(panel1, response, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(panel1, "Error downloading message: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
@@ -76,8 +94,11 @@ public class MainForm {
                             textArea1.append(message + "\n");
                         }
                     }
+                    else {
+                        JOptionPane.showMessageDialog(panel1, response, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(panel1, "Error downloading all messages: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
@@ -99,7 +120,7 @@ public class MainForm {
                     Window window = SwingUtilities.getWindowAncestor(panel1);
                     window.dispose();
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(panel1, "Error during log-off: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }
