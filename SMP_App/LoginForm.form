@@ -37,7 +37,7 @@
           <background color="-11972521"/>
           <caretColor color="-14605015"/>
           <foreground color="-1446673"/>
-          <text value="admin"/>
+          <text value="peter"/>
           <toolTipText value="Username"/>
         </properties>
       </component>

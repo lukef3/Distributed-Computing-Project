@@ -1,0 +1,90 @@
+@startuml
+title SMP Application Class Diagram
+
+package "Presentation Layer" {
+  class LoginForm {
+    -adminTextField: JTextField
+    -passwordPasswordField: JPasswordField
+    -LOGINButton: JButton
+    +getPanel(): JPanel
+  }
+  class MainForm {
+    -messageField: JTextField
+    -uploadMessageButton: JButton
+    -downloadAllMessagesButton: JButton
+    -downloadField: JTextField
+    -downloadMessageButton: JButton
+    -logOffButton: JButton
+    -textArea1: JTextArea
+    +getPanel(): JPanel
+  }
+}
+
+package "Application Layer" {
+  class ClientHelper {
+    -mySocket: MyStreamSocket
+    -serverHost: InetAddress
+    -serverPort: int
+    +login(username: String, password: String): String
+    +logOff(): String
+    +uploadMessage(message: String): String
+    +downloadMessage(messageId: String): String
+    +downloadAllMessages(): String
+    +done(): void
+  }
+  class ServerThread {
+    -myDataSocket: MyStreamSocket
+    -currentUser: String
+    +run(): void
+    -handleLogin(username: String, password: String): void
+    -handleUpload(message: String): void
+    -handleDownload(messageId: int): void
+    -handleDownloadAll(): void
+    -handleLogoff(user: String): void
+    -getNextMessageId(): int
+  }
+    class Server {
+    +main(args: String[]): void
+  }
+    class ServerForm {
+        - JPanel panel1
+        - JTextArea textArea1
+        + ServerForm()
+        + void log(String message)
+      }
+}
+
+package "Session Layer" {
+  class MyStreamSocket {
+    -socket: Socket
+    -input: BufferedReader
+    -output: PrintWriter
+    +sendMessage(message: String): void
+    +receiveMessage(): String
+    +close(): void
+  }
+}
+
+package "Storage" {
+  note "messages.txt" as M
+}
+
+note "Presentation Layer\n - GUI Forms\n - Handles user input" as P
+note "Application Layer\n - Core application and business logic" as A
+note "Session Layer\n - Manages communication session between the client and server" as S
+
+LoginForm ....> ClientHelper
+MainForm ....> ClientHelper
+ServerThread ....> MyStreamSocket
+ClientHelper ....> MyStreamSocket
+ServerThread ..> "Storage"
+ServerThread ...> ServerForm
+Server ...> ServerThread
+Server ...> MyStreamSocket
+Server ...> ServerForm
+
+"Application Layer" -- A
+"Presentation Layer" -- P
+"Session Layer" -- S
+
+@enduml

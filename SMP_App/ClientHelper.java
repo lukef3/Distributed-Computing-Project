@@ -12,7 +12,6 @@ import java.security.cert.CertificateException;
  */
 
 public class ClientHelper {
-   static String endMessage = ".";
    private MyStreamSocket mySocket;
    private InetAddress serverHost;
    private int serverPort;
@@ -30,27 +29,27 @@ public class ClientHelper {
    }
 
    public String login(String username, String password) throws IOException {
-      String request = "100:" + username + "," + password;
+      String request = MessageCodes.LOGIN + ":" + username + "," + password;
       return sendAndReceive(request);
    }
 
    public String logOff() throws IOException {
-      String request = "200:";
+      String request = MessageCodes.LOGOFF + ":";
       return sendAndReceive(request);
    }
 
-   public String uploadMessage(String username, String message) throws IOException {
-      String request = "300:" + username + "," + message;
+   public String uploadMessage(String message) throws IOException {
+      String request = MessageCodes.UPLOAD + ":" + message;
       return sendAndReceive(request);
    }
 
    public String downloadMessage(String messageId) throws IOException {
-      String request = "400:" + messageId;
+      String request = MessageCodes.DOWNLOAD + ":" + messageId;
       return sendAndReceive(request);
    }
 
    public String downloadAllMessages() throws IOException {
-      String request = "500:";
+      String request = MessageCodes.DOWNLOAD_ALL + ":";
       return sendAndReceive(request);
    }
 

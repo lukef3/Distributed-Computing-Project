@@ -1,0 +1,33 @@
+@startuml
+title SMP Protocol Sequence Diagram
+
+actor Client
+participant Server
+
+Client -> Server: 1: username,password
+note right: e.g. 100:peter,12345
+Server --> Client: 101: Login Successful.
+Server --> Client: 201: Login Failed.
+Server --> Client: 204: Invalid Login Format.
+
+Client -> Server: 200: message
+note right: e.g. 200:Hello World!
+Server --> Client: 102: Upload Successful. Message ID: <id>
+Server --> Client: 205: Unable to Upload Message.
+
+Client -> Server: 300: messageID
+note right: e.g. 300:1
+Server --> Client: 103: message
+Server --> Client: 202: Message Not Found.
+Server --> Client: 205: Unable to Download Message.
+
+Client -> Server: 400:
+Server --> Client: 104: message1|message2|...
+Server --> Client: 205: Unable to Download Messages.
+Server --> Client: 204: Invalid Request Format.
+
+Client -> Server: 500:
+Server --> Client: 105: Logout Successful.
+Server --> Client: 204: Invalid Request Format.
+
+@enduml

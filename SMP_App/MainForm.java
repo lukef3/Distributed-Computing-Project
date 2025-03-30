@@ -39,8 +39,8 @@ public class MainForm {
                     return;
                 }
                 try {
-                    String response = helper.uploadMessage(username, message);
-                    if (response.startsWith("301:")) {
+                    String response = helper.uploadMessage(message);
+                    if (response.startsWith(String.valueOf(MessageCodes.UPLOAD_SUCCESS))) {
                         textArea1.append(response + "\n");
                         messageField.setText("");
                     }
@@ -69,8 +69,9 @@ public class MainForm {
                 }
                 try {
                     String response = helper.downloadMessage(id);
-                    if (response.startsWith("401:")) {
+                    if (response.startsWith(String.valueOf(MessageCodes.MESSAGE_DATA))) {
                         textArea1.append(response + "\n");
+                        downloadField.setText("");
                     }
                     else {
                         JOptionPane.showMessageDialog(panel1, response, "Error", JOptionPane.ERROR_MESSAGE);
@@ -88,7 +89,7 @@ public class MainForm {
             public void actionPerformed(ActionEvent e) {
                 try {
                     String response = helper.downloadAllMessages();
-                    if (response.startsWith("501:")) {
+                    if (response.startsWith(String.valueOf(MessageCodes.ALL_MESSAGES_DATA))) {
                         String[] messages = (response.substring(response.indexOf(":") + 1).trim()).split("\\|");
                         for (String message : messages) {
                             textArea1.append(message + "\n");
@@ -110,15 +111,17 @@ public class MainForm {
             public void actionPerformed(ActionEvent e) {
                 try {
                     String response = helper.logOff();
-                    textArea1.append("Log-Off Response: " + response + "\n");
-                    JOptionPane.showMessageDialog(panel1, "Logged off successfully.", "Log Off", JOptionPane.INFORMATION_MESSAGE);
-
-                    // Close the socket
-                    helper.done();
-
-                    // Dispose the window
-                    Window window = SwingUtilities.getWindowAncestor(panel1);
-                    window.dispose();
+                    if (response.startsWith(String.valueOf(MessageCodes.LOGOFF_SUCCESS))) {
+                        JOptionPane.showMessageDialog(panel1, response, "Log Off", JOptionPane.INFORMATION_MESSAGE);
+                        // Close the socket
+                        helper.done();
+                        // Dispose the window
+                        Window window = SwingUtilities.getWindowAncestor(panel1);
+                        window.dispose();
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(panel1, response, "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(panel1, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();

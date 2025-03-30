@@ -12,7 +12,7 @@ import java.util.List;
 class ServerThread implements Runnable {
     MyStreamSocket myDataSocket;
     ServerForm serverForm;
-    private boolean loggedIn = false;
+    private String currentUser = "";
 
     ServerThread(MyStreamSocket myDataSocket, ServerForm serverForm) {
         this.myDataSocket = myDataSocket;
@@ -23,10 +23,10 @@ class ServerThread implements Runnable {
         boolean done = false;
         String request;
         try {
-            while (!done) {
+            while (!done) { // forever loop until log off
                 request = myDataSocket.receiveMessage();
-                serverForm.log("Request received: " + request);
-                done = handleRequest(request);
+                serverForm.log("Request received from [" + currentUser + "]: " + request);
+                done = handleRequest(request); // returns true on log off
             }
         } catch (Exception ex) {
             serverForm.log("Exception caught in thread: " + ex);
@@ -39,127 +39,152 @@ class ServerThread implements Runnable {
         }
     }
 
+
+    // method to send message and log to server form
     private void sendMessage(String message) {
         try {
             myDataSocket.sendMessage(message);
-            serverForm.log("Response sent: " + message);
+            serverForm.log("Response sent to [" + currentUser + "]: " + message);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
     private boolean handleRequest(String request) throws IOException {
-        String[] requestElements = request.split(":", 2);
-        String requestCode = requestElements[0];
-        String[] requestParams = requestElements[1].split(",");
+        String[] requestElements = request.split(":", 2); // split limit of 2, in the case that messages contain ":"
+        int requestCode = Integer.parseInt(requestElements[0]);
+        String[] requestParams = requestElements[1].split(","); // split request parameters by ","
 
         switch (requestCode){
-            case "100":
-                if (requestParams.length < 2) {
-                    sendMessage("103: Missing login parameters");
+            // LOGIN:username,password
+            case MessageCodes.LOGIN:
+                if (requestParams.length != 2) {
+                    sendMessage(MessageCodes.INVALID_REQUEST_FORMAT + ": Invalid message format: " + request + ". \nMust be " + MessageCodes.LOGIN + ":<username>,<password>");
                     break;
                 }
-                String username = requestParams[0];
-                String password = requestParams[1];
-                verifyLogin(username, password);
+                handleLogin(requestParams[0], requestParams[1]);
                 break;
-            case "200":
-                if (!loggedIn) {
-                    sendMessage("Error: Not logged in");
-                }
-                else {
-                    loggedIn = false;
-                    sendMessage("201: Logout Successful");
-                    return true;
-                }
-                break;
-            case "300":
-                if (!loggedIn) {
-                    sendMessage("Error: Not logged in");
+            // UPLOAD:message
+            case MessageCodes.UPLOAD:
+                if (requestParams.length != 1) {
+                    sendMessage(MessageCodes.INVALID_REQUEST_FORMAT + ": Invalid message format: " + request + ". \nMust be: " + MessageCodes.UPLOAD + ":<message>");
                     break;
                 }
-                // Call upload method
-                boolean uploadSuccess = uploadMessage(requestParams[0], requestParams[1]);
-                if (uploadSuccess) {
-                    sendMessage("301: Upload Successful");
-                } else {
-                    myDataSocket.sendMessage("Error: Unable to upload message");
-                }
+                // handle upload request
+                handleUpload(requestElements[1]);   // pass in full request element in case message contains commas
                 break;
-            case "400":
-                if (!loggedIn) {
-                    sendMessage("Error: Not logged in");
+            // DOWNLOAD:messageID
+            case MessageCodes.DOWNLOAD:
+                if (requestParams.length != 1) {
+                    sendMessage(MessageCodes.INVALID_REQUEST_FORMAT + ": Invalid message format: " + request + ". \nMust be: " + MessageCodes.DOWNLOAD + ":<messageId>");
                     break;
                 }
-                sendMessage("401:" + downloadMessage(Integer.parseInt(requestParams[0])));
+                // convert id to integer and handle download request
+                handleDownload(Integer.parseInt(requestParams[0]));
                 break;
-            case "500":
-                if (!loggedIn) {
-                    sendMessage("Error: Not logged in");
+            // DOWNLOAD_ALL:
+            case MessageCodes.DOWNLOAD_ALL:
+                if (requestParams.length != 1) {
+                    sendMessage(MessageCodes.INVALID_REQUEST_FORMAT + ": Invalid message format: " + request + ". \nMust be: " + MessageCodes.DOWNLOAD_ALL + ":");
                     break;
                 }
-                sendMessage("501:" + downloadAllMessages());
+                handleDownloadAll();
                 break;
+            // LOGOFF:
+            case MessageCodes.LOGOFF:
+                if (requestParams.length != 1) {
+                    sendMessage(MessageCodes.INVALID_REQUEST_FORMAT + ": Invalid message format: " + request + ". \nMust be: " + MessageCodes.LOGOFF + ":");
+                    break;
+                }
+                handleLogoff(currentUser);
+                return true; // return true to stop receiving messages for this session
             default:
-                sendMessage("Error: Unknown Request");
+                sendMessage(MessageCodes.INVALID_REQUEST + ": " + request);
                 break;
         }
         return false;
     }
 
-    private void verifyLogin(String username, String password) throws IOException {
-        if ("admin".equals(username) && "password".equals(password)) {
-            loggedIn = true;
-            sendMessage("101: Login Successful. Welcome " + username + ".");
+    // login handler
+    private void handleLogin(String username, String password) throws IOException {
+        if (!username.isEmpty() && !password.isEmpty()) {
+            // set user variable for this session
+            currentUser = username;
+
+            // send confirmation message
+            sendMessage(MessageCodes.LOGIN_SUCCESS + ": Welcome " + username + ".");
         } else {
-            loggedIn = false;
-            sendMessage("102: Login Failed");
+            // send failure message
+            sendMessage(MessageCodes.LOGIN_FAILED + ": Invalid username or password");
         }
     }
 
-    private boolean uploadMessage(String username, String message) throws IOException {
+    // upload handler
+    private void handleUpload(String message) throws IOException {
         int id = getNextMessageId();
         String currentTime = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("messages.txt", true))) {
-            bw.write(id + "-[" + currentTime + "]-[" + username + "] : " + message);
+
+            // save message as id-[time]-[user] : message
+            bw.write(id + "-[" + currentTime + "]-[" + currentUser + "] : " + message);
             bw.newLine();
-            return true;
-        } catch (IOException ex) {
-            System.err.println("Error uploading message to messages file: " + ex.getMessage());
-            serverForm.log("Error uploading message to messages file: " + ex.getMessage());
-            return false;
-        }
-    }
 
-    private String downloadAllMessages() {
-        try (BufferedReader br = new BufferedReader(new FileReader("messages.txt"))) {
-            List<String> lines = new ArrayList<>();
-            String line;
-            while ((line = br.readLine()) != null) {
-                lines.add(line);
-            }
-            return String.join("|", lines);
+            // send confirmation to client
+            sendMessage(MessageCodes.UPLOAD_SUCCESS + ": Upload Successful. Message ID: " + id);
         } catch (IOException e) {
-            return "";
+            // error writing to messages file
+            sendMessage(MessageCodes.SERVER_ERROR + ": Unable to upload message: " + e.getMessage());
         }
     }
 
-    private String downloadMessage(int messageId) {
+    // download handler
+    private void handleDownload(int messageId) {
         try (BufferedReader reader = new BufferedReader(new FileReader("messages.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("-");
+            String message;
+            while ((message = reader.readLine()) != null) {
+                String[] parts = message.split("-", 2);
                 int currentId = Integer.parseInt(parts[0]);
                 if (currentId == messageId) {
-                    return line;
+                    // send message to client if ID is found
+                    sendMessage(MessageCodes.MESSAGE_DATA + ":" + message);
+                    return;
                 }
             }
+            // unable to find message with requested ID
+            sendMessage(MessageCodes.MESSAGE_NOT_FOUND + ": Unable to find message with ID: " + messageId);
         } catch (IOException e) {
-            return "Error reading messages: " + e.getMessage();
+            // error reading messages file
+            sendMessage(MessageCodes.SERVER_ERROR + ": Unable to download message: " + e.getMessage());
         }
-        return "Message not found";
     }
 
+    // download all messages handler
+    private void handleDownloadAll() {
+        try (BufferedReader br = new BufferedReader(new FileReader("messages.txt"))) {
+            List<String> messages = new ArrayList<>();
+            String message;
+            while ((message = br.readLine()) != null) {
+                messages.add(message);
+            }
+            // add delimiter between each messages
+            String messagesDelimited = String.join("|", messages);
+
+            // send delimited message back to client
+            sendMessage(MessageCodes.ALL_MESSAGES_DATA + ":" + messagesDelimited);
+        } catch (IOException e) {
+            // error reading messages file
+            sendMessage(MessageCodes.SERVER_ERROR + ": Unable to download messages: " + e.getMessage());
+        }
+    }
+
+    //log  off handler
+    private void handleLogoff(String user) throws IOException {
+        this.currentUser = "";
+        String message = MessageCodes.LOGOFF_SUCCESS + ": Log Off Successful. Goodbye " + user + ".";
+        myDataSocket.sendMessage(message);
+        serverForm.log("Response sent to [" + user + "]: " + message);
+    }
+
+    // generate next ID. last highest +1
     private int getNextMessageId() throws IOException {
         int highestId = 0;
         File file = new File("messages.txt");

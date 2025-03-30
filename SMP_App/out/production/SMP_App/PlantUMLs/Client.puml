@@ -1,0 +1,65 @@
+@startuml
+
+title "Client UML"
+
+class LoginForm {
+- JButton LOGINButton
+- JPanel panel1
+- JTextField adminTextField
+- JPasswordField passwordPasswordField
++ LoginForm()
++ JPanel getPanel()
+}
+
+class MainForm {
+- JTextField messageField
+- JButton uploadMessageButton
+- JButton downloadAllMessagesButton
+- JTextField downloadField
+- JButton downloadMessageButton
+- JButton logOffButton
+- JTextArea textArea1
+- JPanel panel1
+- String username
+- ClientHelper helper
++ MainForm(String username, ClientHelper helper)
+- void addListeners()
++ JPanel getPanel()
+}
+
+class ClientHelper {
+- MyStreamSocket mySocket
+- InetAddress serverHost
+- int serverPort
++ ClientHelper(String hostName, String portNum)
+- String sendAndReceive(String request)
++ String login(String username, String password)
++ String logOff()
++ String uploadMessage(String message)
++ String downloadMessage(String messageId)
++ String downloadAllMessages()
++ void done()
+}
+
+class MyStreamSocket {
+- Socket socket
+- BufferedReader input
+- PrintWriter output
+- String tsName
+- char[] tsPassword
++ MyStreamSocket(InetAddress acceptorHost, int acceptorPort)
++ MyStreamSocket(Socket socket)
+- void setStreams()
++ void sendMessage(String message)
++ String receiveMessage()
++ void close()
+}
+
+
+
+' Relationships
+LoginForm --> ClientHelper
+MainForm  --> ClientHelper
+ClientHelper --> MyStreamSocket : ""
+
+@enduml

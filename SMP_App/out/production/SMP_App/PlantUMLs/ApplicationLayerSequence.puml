@@ -1,0 +1,34 @@
+@startuml Application_Layer_Login_Sequence
+participant "ClientHelper" as Client
+participant "ServerThread" as Server
+
+Client -> Server : login("Peter", "123")
+activate Server
+Server -> Server : handleLogin("Peter", "123")
+Server -> Client : sendResponse(loginResponse)
+deactivate Server
+
+Client -> Server : uploadMessage("Hello", "1")
+activate Server
+Server -> Server : handleUpload("Hello")
+Server -> Client : sendResponse(uploadResponse)
+deactivate Server
+
+Client -> Server : downloadMessage("2")
+activate Server
+Server -> Server : handleDownload("2")
+Server -> Client : sendResponse(downloadResponse)
+deactivate Server
+
+Client -> Server : downloadAllMessages()
+activate Server
+Server -> Server : handleDownloadAll()
+Server -> Client : sendResponse(downloadAllResponse)
+deactivate Server
+
+Client -> Server : logOff()
+activate Server
+Server -> Server : handleLogoff()
+Server -> Client : sendResponse(logoffResponse)
+deactivate Server
+@enduml

@@ -1,0 +1,32 @@
+@startuml Presentation_Layer_Login_Sequence
+actor User
+participant "LoginForm" as Login
+participant "MainForm" as Main
+
+User -> Login : login("Peter", "123")
+activate Login
+Login -> Login : Dispose LoginForm
+Login -> Main : Display MainForm
+deactivate Login
+
+User -> Main : upload("Hello", "1")
+activate Main
+Main -> Main : Display Server Response
+deactivate Main
+
+User -> Main : download("2")
+activate Main
+Main -> Main : Display Server Response
+deactivate Main
+
+User -> Main : downloadAll()
+activate Main
+Main -> Main : Display Server Messages
+deactivate Main
+
+User -> Main : logoff()
+activate Main
+Main -> Main : Display Server Response
+Main -> Main : Dispose MainForm
+deactivate Main
+@enduml

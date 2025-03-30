@@ -27,19 +27,19 @@ public class Server {
       char[] ctPass = "password".toCharArray();
 
       try {
-         // Load server keystore
+         // load server keystore
          KeyStore keyStore = KeyStore.getInstance("JKS");
          keyStore.load(new FileInputStream(ksName), ksPass);
 
-         // Initialize KeyManagerFactory
+         //initialise KeyManagerFactory
          KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
          kmf.init(keyStore, ctPass); // same placeholder password
 
-         // Create and initialize SSLContext
+         // create SSLContext
          SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
          sslContext.init(kmf.getKeyManagers(), null, null);
 
-         // Create SSLServerSocket
+         // create SSLServerSocket
          SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
          SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port);
 
@@ -49,11 +49,14 @@ public class Server {
          while (true) {
             // wait to accept a connection
             serverForm.log("Waiting for a connection.");
-            MyStreamSocket socket = new MyStreamSocket(sslServerSocket.accept());
-            serverForm.log("Connection accepted from " + socket.getInetAddress());
+            SSLSocket sslSocket = (SSLSocket) sslServerSocket.accept();
+            serverForm.log("Connection accepted from " + sslSocket.getInetAddress());
+
+            // create stream socket
+            MyStreamSocket myDataSocket = new MyStreamSocket(sslSocket);
 
             // Spawn a new thread for this client
-            Thread theThread = new Thread(new ServerThread(socket, serverForm));
+            Thread theThread = new Thread(new ServerThread(myDataSocket, serverForm));
             theThread.start();
             // and then go on to the next client
          }

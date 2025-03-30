@@ -1,0 +1,55 @@
+@startuml
+
+title "Server UML"
+
+class ServerThread {
+- MyStreamSocket myDataSocket
+- ServerForm serverForm
+- String currentUser
++ ServerThread(MyStreamSocket myDataSocket, ServerForm serverForm)
++ void run()
+- boolean handleRequest(String request)
+- void sendMessage(String message)
+- void handleLogin(String username, String password)
+- void handleUpload(String message)
+- void handleDownload(int messageId)
+- void handleDownloadAll()
+- void handleLogOff()
+- int getNextMessageId()
+}
+
+ServerThread -up-|> Runnable
+
+class ServerForm {
+    - JPanel panel1
+    - JTextArea textArea1
+    + ServerForm()
+    + void log(String message)
+  }
+
+class Server {
++ static void main(String[] args)
+}
+
+class MyStreamSocket {
+- Socket socket
+- BufferedReader input
+- PrintWriter output
+- String tsName
+- char[] tsPassword
++ MyStreamSocket(InetAddress acceptorHost, int acceptorPort)
++ MyStreamSocket(Socket socket)
+- void setStreams()
++ void sendMessage(String message)
++ String receiveMessage()
++ void close()
+}
+
+
+
+' Relationships
+Server --> ServerThread
+ServerThread --> MyStreamSocket
+ServerThread --> ServerForm
+
+@enduml

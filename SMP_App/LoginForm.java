@@ -9,8 +9,8 @@ public class LoginForm {
     private JTextField adminTextField;
     private JPasswordField passwordPasswordField;
 
-    private final String HOST = "localhost";
-    private final String PORT = "12345";
+    private final String host = "localhost";
+    private final String port = "12345";
 
     public LoginForm() {
         LOGINButton.addActionListener(new ActionListener() {
@@ -25,19 +25,19 @@ public class LoginForm {
                     JOptionPane.showMessageDialog(panel1, "Please enter both username and password.", "Input Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
                 try {
-                    // Create a new helper to communicate with the server
-                    ClientHelper helper = new ClientHelper(HOST, PORT);
+                    // initialise new client helper
+                    ClientHelper helper = new ClientHelper(host, port);
 
                     // Send the login request and retrieve the server's response
                     String response = helper.login(username, password);
 
-                    // "101:" indicates a successful login, "102:" indicates a failure.
-                    if (response != null && response.startsWith("101:")) {
+                    // Check if server response is successful
+                    if (response != null && response.startsWith(String.valueOf(MessageCodes.LOGIN_SUCCESS))) {
                         JOptionPane.showMessageDialog(panel1, response, "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+
+                        // Create new main form. Pass client helper to stay on same session.
                         JFrame mainFrame = new JFrame("Client: " + username);
-                        // Open Main form. Pass client helper to stay on same session.
                         mainFrame.setContentPane(new MainForm(username, helper).getPanel());
                         mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         mainFrame.pack();
@@ -51,7 +51,6 @@ public class LoginForm {
                     } else {
                         JOptionPane.showMessageDialog(panel1, response, "Login Failed", JOptionPane.ERROR_MESSAGE);
                     }
-
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(panel1, "Error during login: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
@@ -105,7 +104,7 @@ public class LoginForm {
         adminTextField.setBackground(new Color(-11972521));
         adminTextField.setCaretColor(new Color(-14605015));
         adminTextField.setForeground(new Color(-1446673));
-        adminTextField.setText("admin");
+        adminTextField.setText("peter");
         adminTextField.setToolTipText("Username");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
