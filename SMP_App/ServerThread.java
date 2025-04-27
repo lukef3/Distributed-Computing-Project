@@ -165,7 +165,7 @@ class ServerThread implements Runnable {
             while ((message = br.readLine()) != null) {
                 messages.add(message);
             }
-            // add delimiter between each messages
+            // add delimiter between each message
             String messagesDelimited = String.join("|", messages);
 
             // send delimited message back to client

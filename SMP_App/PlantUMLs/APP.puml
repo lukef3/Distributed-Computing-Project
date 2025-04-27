@@ -18,6 +18,12 @@ package "Presentation Layer" {
     -textArea1: JTextArea
     +getPanel(): JPanel
   }
+  class ServerForm {
+          - JPanel panel1
+          - JTextArea textArea1
+          + ServerForm()
+          + void log(String message)
+        }
 }
 
 package "Application Layer" {
@@ -46,12 +52,7 @@ package "Application Layer" {
     class Server {
     +main(args: String[]): void
   }
-    class ServerForm {
-        - JPanel panel1
-        - JTextArea textArea1
-        + ServerForm()
-        + void log(String message)
-      }
+
 }
 
 package "Session Layer" {
@@ -73,15 +74,15 @@ note "Presentation Layer\n - GUI Forms\n - Handles user input" as P
 note "Application Layer\n - Core application and business logic" as A
 note "Session Layer\n - Manages communication session between the client and server" as S
 
-LoginForm ....> ClientHelper
-MainForm ....> ClientHelper
-ServerThread ....> MyStreamSocket
-ClientHelper ....> MyStreamSocket
+LoginForm ..> ClientHelper
+MainForm ..> ClientHelper
+ServerThread ..> MyStreamSocket
+ClientHelper ..> MyStreamSocket
 ServerThread ..> "Storage"
-ServerThread ...> ServerForm
-Server ...> ServerThread
-Server ...> MyStreamSocket
-Server ...> ServerForm
+ServerThread ..> ServerForm
+Server .> ServerThread
+Server .> MyStreamSocket
+Server .> ServerForm
 
 "Application Layer" -- A
 "Presentation Layer" -- P

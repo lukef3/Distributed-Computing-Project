@@ -1,42 +1,24 @@
-@startuml
-title SMP Protocol IPC
+@startuml Session Layer IPC
 
-participant ClientApp
-participant ClientHelper
-participant ServerThread
-participant MessageStorage
+participant ClientHelper as CH <<Application Layer>>
+participant MyStreamSocket as ClientSocket <<Session Layer>>
+participant MyStreamSocket as ServerSocket <<Session Layer>>
+participant ServerThread as ST <<Application Layer>>
 
-ClientApp -> ClientHelper: login(username, password)
-ClientHelper -> ServerThread: 100:username,password
-ServerThread -> ServerThread: handleLogin(username, password)
-ServerThread --> ClientHelper: 101: Welcome <username>
-ClientHelper --> ClientApp: response (101 or 201)
+CH -> ClientSocket : Sends request string \n via TCP SSLSocket
+activate ClientSocket
 
-ClientApp -> ClientHelper: uploadMessage(message)
-ClientHelper -> ServerThread: 200:message
-ServerThread -> ServerThread: handleUpload(message)
-ServerThread -> MessageStorage: write message
-ServerThread --> ClientHelper: 102: Upload Successful. Message ID: <id>
-ClientHelper --> ClientApp: response (102)
+ClientSocket -> ServerSocket : Transmits request string \n over TCP SSLSocket
+activate ServerSocket
 
-ClientApp -> ClientHelper: downloadMessage(messageId)
-ClientHelper -> ServerThread: 300:messageId
-ServerThread -> ServerThread: handleDownload(messageId)
-ServerThread -> MessageStorage: read message
-ServerThread --> ClientHelper: 103: <message>
-ClientHelper --> ClientApp: response (103 or 202)
+ServerSocket -> ST : Delivers request string \n to ServerThread
+activate ST
 
-ClientApp -> ClientHelper: downloadAllMessages()
-ClientHelper -> ServerThread: 400:
-ServerThread -> ServerThread: handleDownloadAll()
-ServerThread -> MessageStorage: read all messages
-ServerThread --> ClientHelper: 104: <message1>|<message2>|...
-ClientHelper --> ClientApp: response (104)
-
-ClientApp -> ClientHelper: logOff()
-ClientHelper -> ServerThread: 500:
-ServerThread -> ServerThread: handleLogoff()
-ServerThread --> ClientHelper: 105: Log Off Successful. Goodbye <username>.
-ClientHelper --> ClientApp: response (105)
+ST -> ServerSocket : Sends response string \n via TCP SSLSocket
+ServerSocket -> ClientSocket : Transmits response string \n over TCP SSLSocket
+ClientSocket -> CH : Delivers response string \n to ClientHelper
+deactivate ServerSocket
+deactivate ClientSocket
+deactivate ST
 
 @enduml

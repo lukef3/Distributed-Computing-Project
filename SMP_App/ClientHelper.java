@@ -33,11 +33,6 @@ public class ClientHelper {
       return sendAndReceive(request);
    }
 
-   public String logOff() throws IOException {
-      String request = MessageCodes.LOGOFF + ":";
-      return sendAndReceive(request);
-   }
-
    public String uploadMessage(String message) throws IOException {
       String request = MessageCodes.UPLOAD + ":" + message;
       return sendAndReceive(request);
@@ -50,6 +45,11 @@ public class ClientHelper {
 
    public String downloadAllMessages() throws IOException {
       String request = MessageCodes.DOWNLOAD_ALL + ":";
+      return sendAndReceive(request);
+   }
+
+   public String logOff() throws IOException {
+      String request = MessageCodes.LOGOFF + ":";
       return sendAndReceive(request);
    }
 
